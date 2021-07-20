@@ -6,13 +6,12 @@ import (
 )
 
 type Config struct {
-	CasBin       *CasBinConfig
 	WebLog       *logger.LogConf
 	WebAccessLog *logger.LogConf
 	MysqlLog     *logger.LogConf
 	CtrlLog      *logger.LogConf
 	MysqlConf    *MysqlConf
-	Web          *Web
+	Worker       *Worker
 	Master       *Master
 }
 
@@ -23,14 +22,8 @@ type MysqlConf struct {
 	Port     int64
 	Database string
 }
-type CasBinConfig struct {
-	Username string
-	Passwd   string
-	Host     string
-	Port     int64
-	Database string
-}
-type Web struct {
+
+type Worker struct {
 	ListenPort int64
 	Domain     string
 	StaticDir  string
@@ -44,7 +37,7 @@ type Master struct {
 
 func InitConfig() (*Config, error) {
 	var config = defaultConfig()
-	_, err := toml.DecodeFile("./etc/web.conf", config)
+	_, err := toml.DecodeFile("./etc/worker.conf", config)
 	if err != nil {
 		return nil, err
 	}
@@ -53,33 +46,27 @@ func InitConfig() (*Config, error) {
 
 func defaultConfig() *Config {
 	return &Config{
-		CasBin: &CasBinConfig{
-			Username: "",
-			Passwd:   "",
-			Port:     0,
-			Database: "",
-		},
 		WebLog: &logger.LogConf{
 			LogLevel:      "info",
-			LogPath:       "/Users/fenghui/goCode/web/log/web.log",
+			LogPath:       "/Users/fenghui/goCode/worker/log/web.log",
 			LogReserveDay: 1,
 			ReportCaller:  true,
 		},
 		WebAccessLog: &logger.LogConf{
 			LogLevel:      "info",
-			LogPath:       "/Users/fenghui/goCode/web/log/web_access.log",
+			LogPath:       "/Users/fenghui/goCode/worker/log/web_access.log",
 			LogReserveDay: 1,
 			ReportCaller:  true,
 		},
 		MysqlLog: &logger.LogConf{
 			LogLevel:      "info",
-			LogPath:       "/Users/fenghui/goCode/web/log/mysql.log",
+			LogPath:       "/Users/fenghui/goCode/worker/log/mysql.log",
 			LogReserveDay: 1,
 			ReportCaller:  true,
 		},
 		CtrlLog: &logger.LogConf{
 			LogLevel:      "info",
-			LogPath:       "/Users/fenghui/goCode/web/log/ctrl.log",
+			LogPath:       "/Users/fenghui/goCode/worker/log/ctrl.log",
 			LogReserveDay: 1,
 			ReportCaller:  true,
 		},

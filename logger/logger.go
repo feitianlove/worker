@@ -2,7 +2,7 @@ package logger
 
 import (
 	goliblogger "github.com/feitianlove/golib/common/logger"
-	"github.com/feitianlove/web/config"
+	"github.com/feitianlove/worker/config"
 	"github.com/sirupsen/logrus"
 )
 
