@@ -13,18 +13,13 @@ import (
 
 type Worker struct {
 	sync.Mutex
-	task chan *Task
+	task chan *w_pb.TaskRequest
 	cond *sync.Cond
-}
-type Task struct {
-	RequestId string
-	Data      string //需要安装的IP
-	Module    string //需要装的module
 }
 
 func NewWorker() *Worker {
 	mr := &Worker{
-		task: make(chan *Task, 10),
+		task: make(chan *w_pb.TaskRequest, 10),
 	}
 	mr.cond = sync.NewCond(mr)
 	return mr
@@ -53,15 +48,15 @@ func (worker *Worker) DistributeTask(ctx context.Context, request *w_pb.TaskRequ
 		Message: "",
 	}
 	// 判断参数
-	if len(request.Module) == 0 || len(request.Data) == 0 {
+	if len(request.Ip) == 0 || len(request.Data) == 0 {
 		response.Code = -1
-		response.Message = fmt.Sprintf("the param is invalid, Module [%s] Data [%s]", request.Module, request.Data)
+		response.Message = fmt.Sprintf("the param is invalid, Module [%s] Data [%s]", request.Ip, request.Data)
 		return response, errors.New("the param is invalid")
 	}
-	worker.task <- &Task{
+	worker.task <- &w_pb.TaskRequest{
 		RequestId: request.RequestId,
 		Data:      request.Data,
-		Module:    request.Module,
+		Ip:        request.Ip,
 	}
 	worker.cond.Broadcast()
 	response.Message = "success"
@@ -72,7 +67,10 @@ func (worker *Worker) Schedule() {
 	for {
 		select {
 		case tk := <-worker.task:
-			fmt.Println(tk)
+			for i := 0; i < len(tk.Data); i++ {
+				//TODO agent去执行
+				fmt.Println(tk.Ip, tk.Data[i])
+			}
 		default:
 			fmt.Println("default")
 			worker.Lock()
